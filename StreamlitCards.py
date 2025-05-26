@@ -155,7 +155,7 @@ if uploaded_file:
     df[["P"] + metrics_list] = df[["P"] + metrics_list].apply(pd.to_numeric, errors="coerce")
     df[contact_cols] = df[contact_cols].apply(lambda c: pd.to_numeric(c.astype(str).str.rstrip("%"), errors="coerce"))
 
-        left, right = st.columns([1, 5])
+    left, right = st.columns([1, 5])
     with left:
         if headshot_url and headshot_url.strip():
             try:
