@@ -110,15 +110,24 @@ def style_contact_row(r: pd.Series):
     pitch = r.name
     styles = []
     for stat, v in r.items():
-        if pitch == "Fastball (2S) / Sinker" and stat in ["InZoneSLG", "ChaseSLG"]:
-            styles.append("background-color: #D45F6A")
-            continue
         lo, mid, hi = stat_ranges[pitch][stat].values()
-        if pd.isna(v): styles.append("")
-        else:
+        if pd.isna(v):
+            styles.append("")
+            continue
+
+        # for O‑Contact%, use raw frac, otherwise clamp
+        if stat == "Chase%":
             frac = (v - lo) / (hi - lo) if hi != lo else 0.5
-            frac = max(0, min(1, frac))
-            styles.append(f"background-color: {mcolors.to_hex(cmap_sum(frac))}")
+        else:
+            # clamp between 0 and 1
+            if v >= hi:
+                frac = 1.0
+            elif v <= lo:
+                frac = 0.0
+            else:
+                frac = (v - lo) / (hi - lo)
+
+        styles.append(f"background-color: {mcolors.to_hex(cmap_sum(frac))}")
     return styles
 
 def style_header_row(r: pd.Series):
