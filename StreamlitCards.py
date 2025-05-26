@@ -98,8 +98,8 @@ stat_ranges["Breaking (cv/sld/sw)"]["ChaseSLG"]      = {"min": 0, "mid": .198, "
 
 # Header metric thresholds
 header_ranges = {
-    "ExitVel":      {"min": 82.0, "mid": 86.8, "max":99},
-    "90thExitVel":  {"min": 101.5, "mid": 103.7, "max": 115},
+    "ExitVel":      {"min": 82.0, "mid": 86.8, "max":96},
+    "90thExitVel":  {"min": 101.5, "mid": 103.7, "max": 111},
     "Air EV":       {"min": 83,   "mid": 87.8, "max": 100},
     "LaunchAng":    {"min": 0.0,  "mid": 10.3, "max": 22.0},
     "HHLaunchAng":  {"min": 0.0,  "mid": 12.8, "max": 22.0},
@@ -134,11 +134,19 @@ def style_header_row(r: pd.Series):
     styles = []
     for stat, v in r.items():
         lo, mid, hi = header_ranges[stat].values()
-        if pd.isna(v): styles.append("")
+        if pd.isna(v):
+            styles.append("")
+            continue
+
+        # clamp to [0,1] so v≤min→0, v≥max→1
+        if v >= hi:
+            frac = 1.0
+        elif v <= lo:
+            frac = 0.0
         else:
-            frac = (v - lo) / (hi - lo) if hi != lo else 0.5
-            frac = max(0, min(1, frac))
-            styles.append(f"background-color: {mcolors.to_hex(cmap_sum(frac))}")
+            frac = (v - lo) / (hi - lo)
+
+        styles.append(f"background-color: {mcolors.to_hex(cmap_sum(frac))}")
     return styles
 
 if uploaded_file:
