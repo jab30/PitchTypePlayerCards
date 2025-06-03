@@ -98,8 +98,8 @@ stat_ranges["Breaking (cv/sld/sw)"]["ChaseSLG"]      = {"min": 0, "mid": .198, "
 
 # Header metric thresholds
 header_ranges = {
-    "ExitVel":      {"min": 82.0, "mid": 86.8, "max":96},
-    "90thExitVel":  {"min": 101.5, "mid": 103.7, "max": 111},
+    "ExitVel":      {"min": 82.0, "mid": 86.8, "max":97},
+    "90thExitVel":  {"min": 101.5, "mid": 103.7, "max": 108},
     "Air EV":       {"min": 83,   "mid": 87.8, "max": 100},
     "LaunchAng":    {"min": 0.0,  "mid": 10.3, "max": 22.0},
     "HHLaunchAng":  {"min": 0.0,  "mid": 12.8, "max": 22.0},
@@ -115,11 +115,10 @@ def style_contact_row(r: pd.Series):
             styles.append("")
             continue
 
-        # for O‑Contact%, use raw frac, otherwise clamp
+        # for Chase%, clamp differently
         if stat == "Chase%":
             frac = (v - lo) / (hi - lo) if hi != lo else 0.5
         else:
-            # clamp between 0 and 1
             if v >= hi:
                 frac = 1.0
             elif v <= lo:
@@ -136,17 +135,10 @@ def style_header_row(r: pd.Series):
         lo, mid, hi = header_ranges[stat].values()
         if pd.isna(v):
             styles.append("")
-            continue
-
-        # clamp to [0,1] so v≤min→0, v≥max→1
-        if v >= hi:
-            frac = 1.0
-        elif v <= lo:
-            frac = 0.0
         else:
-            frac = (v - lo) / (hi - lo)
-
-        styles.append(f"background-color: {mcolors.to_hex(cmap_sum(frac))}")
+            frac = (v - lo) / (hi - lo) if hi != lo else 0.5
+            frac = max(0, min(1, frac))
+            styles.append(f"background-color: {mcolors.to_hex(cmap_sum(frac))}")
     return styles
 
 if uploaded_file:
@@ -172,24 +164,43 @@ if uploaded_file:
     df[["P"] + metrics_list] = df[["P"] + metrics_list].apply(pd.to_numeric, errors="coerce")
     df[contact_cols] = df[contact_cols].apply(lambda c: pd.to_numeric(c.astype(str).str.rstrip("%"), errors="coerce"))
 
-    left, right = st.columns([1, 5])
+    # Reduce headshot area by making left column even narrower
+    left, right = st.columns([1, 8])
     with left:
         if headshot_url and headshot_url.strip():
             try:
-                st.image(headshot_url, use_column_width=True)
+                st.image(headshot_url, width=150)
             except Exception as e:
                 st.error(f"Unable to load headshot image: {e}")
         else:
             st.write("_No headshot URL provided_")
+
     header_df = pd.DataFrame([header_values], index=["Overall"]).loc[:, metrics_list]
-    styled_header = header_df.style.apply(style_header_row, axis=1).format({**{m:"{:.1f}" for m in metrics_list if not m.endswith("SLG")}, **{m:"{:.3f}" for m in metrics_list if m.endswith("SLG")}}).set_properties(**{"text-align":"center"})
+    styled_header = (
+        header_df
+        .style
+        .apply(style_header_row, axis=1)
+        .format({**{m: "{:.1f}" for m in metrics_list if not m.endswith("SLG")},
+                 **{m: "{:.3f}" for m in metrics_list if m.endswith("SLG")}})
+        .set_properties(**{"text-align": "center"})
+    )
     with right:
         st.dataframe(styled_header, use_container_width=True)
+
     st.markdown("---")
-    agg = {"P":"sum", **{c:"mean" for c in contact_cols}}
+
+    agg = {"P": "sum", **{c: "mean" for c in contact_cols}}
     grp = df.groupby(pitch_col).agg(agg).reindex(pitch_order)
-    grp["P%"] = (grp["P"]/grp["P"].sum()*100).round(1)
-    styled_contacts = grp[contact_cols].style.apply(style_contact_row, axis=1).format({**{c:"{:.1f}%" for c in contact_cols if not c.endswith("SLG")}, **{c:"{:.3f}" for c in contact_cols if c.endswith("SLG")}}).set_properties(**{"text-align":"center"})
+    grp["P%"] = (grp["P"] / grp["P"].sum() * 100).round(1)
+
+    styled_contacts = (
+        grp[contact_cols]
+        .style
+        .apply(style_contact_row, axis=1)
+        .format({**{c: "{:.1f}%" for c in contact_cols if not c.endswith("SLG")},
+                 **{c: "{:.3f}" for c in contact_cols if c.endswith("SLG")}})
+        .set_properties(**{"text-align": "center"})
+    )
     st.dataframe(styled_contacts, use_container_width=True)
 else:
     st.info("Upload a CSV and enter a headshot URL to see the dashboard.")
