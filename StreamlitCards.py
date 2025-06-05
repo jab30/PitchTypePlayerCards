@@ -192,15 +192,21 @@ if uploaded_file:
     header_df = pd.DataFrame([header_values], columns=metrics_list)
 
     styled_header = (
-        header_df
-        .style
-        .hide_index()  # hide the default row index
-        .apply(style_header_row, axis=1)
-        .format({
-            **{m: "{:.1f}" for m in metrics_list if not m.endswith("SLG")},
-            **{m: "{:.3f}" for m in metrics_list if m.endswith("SLG")}
-        })
-        .set_properties(**{"text-align": "center"})
+        header_df.style
+            .set_table_styles(
+                [
+                    {
+                        "selector": "tbody th",
+                        "props": "display: none;"
+                    }
+                ]
+            )
+            .apply(style_header_row, axis=1)
+            .format({
+                **{m: "{:.1f}" for m in metrics_list if not m.endswith("SLG")},
+                **{m: "{:.3f}" for m in metrics_list if m.endswith("SLG")}
+            })
+            .set_properties(**{"text-align": "center"})
     )
 
     with right:
