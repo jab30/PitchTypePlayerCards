@@ -106,22 +106,6 @@ header_ranges = {
     "xSLG":         {"min": 0.190,"mid": 0.388,"max": 1.000}
 }
 
-def style_value_cell(r: pd.Series):
-    # r.name is the metric (e.g. "ExitVel")
-    metric = r.name
-    v = r["Value"]
-    lo, mid, hi = header_ranges[metric].values()
-    if pd.isna(v):
-        return [""]  # no style if NaN
-    # clamp to [0,1]
-    if v >= hi:
-        frac = 1.0
-    elif v <= lo:
-        frac = 0.0
-    else:
-        frac = (v - lo) / (hi - lo)
-    return [f"background-color: {mcolors.to_hex(cmap_sum(frac))}"]
-
 def style_contact_row(r: pd.Series):
     pitch = r.name
     styles = []
@@ -130,6 +114,7 @@ def style_contact_row(r: pd.Series):
         if pd.isna(v):
             styles.append("")
             continue
+
         # for Chase%, clamp differently
         if stat == "Chase%":
             frac = (v - lo) / (hi - lo) if hi != lo else 0.5
@@ -141,6 +126,26 @@ def style_contact_row(r: pd.Series):
                 frac = 0.0
             else:
                 frac = (v - lo) / (hi - lo)
+
+        styles.append(f"background-color: {mcolors.to_hex(cmap_sum(frac))}")
+    return styles
+
+def style_header_row(r: pd.Series):
+    styles = []
+    for stat, v in r.items():
+        lo, mid, hi = header_ranges[stat].values()
+        if pd.isna(v):
+            styles.append("")
+            continue
+
+        # clamp to [0,1]
+        if v >= hi:
+            frac = 1.0
+        elif v <= lo:
+            frac = 0.0
+        else:
+            frac = (v - lo) / (hi - lo)
+
         styles.append(f"background-color: {mcolors.to_hex(cmap_sum(frac))}")
     return styles
 
@@ -183,28 +188,26 @@ if uploaded_file:
         else:
             st.write("_No headshot URL provided_")
 
-    # build a two-column header DataFrame: Metric names down the first column
-    header_df = pd.DataFrame({
-        "Metric": metrics_list,
-        "Value": [header_values[m] for m in metrics_list]
-    }).set_index("Metric")
+    # build a one-row DataFrame horizontally, with ExitVel as first column
+    header_df = pd.DataFrame([header_values], columns=metrics_list)
 
-    # style so that "ExitVel" is the first row (it already is in metrics_list),
-    # and hide the index name`
+    # hide the default index column and apply coloring
     styled_header = (
         header_df.style
             .set_table_styles(
                 [
                     {
-                        "selector": "th.row_heading",  # hide the index name “Metric”
+                        "selector": "tbody th", 
                         "props": "display: none;"
                     }
                 ]
             )
-            .apply(style_value_cell, axis=1)  # color only the “Value” column cells
-            .format({"Value": "{:.3f}"}  # use a consistent format (three decimals for SLG, etc.)
-                    )
-            .set_properties(subset=["Value"], **{"text-align": "center"})
+            .apply(style_header_row, axis=1)
+            .format({
+                **{m: "{:.1f}" for m in metrics_list if not m.endswith("SLG")},
+                **{m: "{:.3f}" for m in metrics_list if m.endswith("SLG")}
+            })
+            .set_properties(**{"text-align": "center"})
     )
 
     with right:
