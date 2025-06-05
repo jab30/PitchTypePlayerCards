@@ -175,13 +175,15 @@ if uploaded_file:
         else:
             st.write("_No headshot URL provided_")
 
-    header_df = pd.DataFrame([header_values], index=["Overall"]).loc[:, metrics_list]
+    # build a one-row DataFrame without an “Overall” index label
+    header_df = pd.DataFrame([header_values], columns=metrics_list)
     styled_header = (
-        header_df
+    header_df
         .style
+        .hide_index()                           # ← hide the “0” row index
         .apply(style_header_row, axis=1)
         .format({**{m: "{:.1f}" for m in metrics_list if not m.endswith("SLG")},
-                 **{m: "{:.3f}" for m in metrics_list if m.endswith("SLG")}})
+             **{m: "{:.3f}" for m in metrics_list if m.endswith("SLG")}})
         .set_properties(**{"text-align": "center"})
     )
     with right:
