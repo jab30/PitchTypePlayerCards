@@ -197,7 +197,7 @@ if uploaded_file:
             .set_table_styles(
                 [
                     {
-                        "selector": "tbody th", 
+                        "selector": "th.row_heading, th.blank",
                         "props": "display: none;"
                     }
                 ]
