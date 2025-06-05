@@ -33,7 +33,7 @@ cmap_sum = mcolors.LinearSegmentedColormap.from_list(
     "", ["#7AB1EE", "#0F1116", "#D45F6A"]
 )
 
-# Per‑pitch/stat ranges for contact_cols
+# Per-pitch/stat ranges for contact_cols
 stat_ranges = {pt: {stat: {"min": None, "mid": None, "max": None} for stat in contact_cols} for pt in pitch_order}
 
 # Fastball (4S)
@@ -98,8 +98,8 @@ stat_ranges["Breaking (cv/sld/sw)"]["ChaseSLG"]      = {"min": 0, "mid": .198, "
 
 # Header metric thresholds
 header_ranges = {
-    "ExitVel":      {"min": 82.0, "mid": 86.8, "max":97},
-    "90thExitVel":  {"min": 101.5, "mid": 103.7, "max": 108},
+    "ExitVel":      {"min": 82.0, "mid": 86.8, "max": 96},
+    "90thExitVel":  {"min": 101.5, "mid": 103.7, "max": 111},
     "Air EV":       {"min": 83,   "mid": 87.8, "max": 100},
     "LaunchAng":    {"min": 0.0,  "mid": 10.3, "max": 22.0},
     "HHLaunchAng":  {"min": 0.0,  "mid": 12.8, "max": 22.0},
@@ -119,6 +119,7 @@ def style_contact_row(r: pd.Series):
         if stat == "Chase%":
             frac = (v - lo) / (hi - lo) if hi != lo else 0.5
         else:
+            # clamp between 0 and 1
             if v >= hi:
                 frac = 1.0
             elif v <= lo:
@@ -135,10 +136,17 @@ def style_header_row(r: pd.Series):
         lo, mid, hi = header_ranges[stat].values()
         if pd.isna(v):
             styles.append("")
+            continue
+
+        # clamp to [0,1]
+        if v >= hi:
+            frac = 1.0
+        elif v <= lo:
+            frac = 0.0
         else:
-            frac = (v - lo) / (hi - lo) if hi != lo else 0.5
-            frac = max(0, min(1, frac))
-            styles.append(f"background-color: {mcolors.to_hex(cmap_sum(frac))}")
+            frac = (v - lo) / (hi - lo)
+
+        styles.append(f"background-color: {mcolors.to_hex(cmap_sum(frac))}")
     return styles
 
 if uploaded_file:
@@ -147,10 +155,13 @@ if uploaded_file:
     if missing := [c for c in usecols if c not in df.columns]:
         st.error(f"Missing columns: {missing}")
         st.stop()
+
     total = df[df["SplitBy"] == "TOTAL"].iloc[0] if not df[df["SplitBy"] == "TOTAL"].empty else None
     if total is None:
         st.error("No TOTAL row found.")
         st.stop()
+
+    # build header_values Series from TOTAL row
     header_values = pd.Series({
         "ExitVel":      total["ExitVel"],
         "90thExitVel":  total["90thExitVel"],
@@ -159,17 +170,19 @@ if uploaded_file:
         "HHLaunchAng":  total["HHLaunchAng"],
         "xSLG":         total["SLG"]
     }).apply(pd.to_numeric, errors="coerce")
+
     df = df[df["SplitBy"] != "TOTAL"].copy()
     df = df[df[pitch_col].isin(pitch_order)]
     df[["P"] + metrics_list] = df[["P"] + metrics_list].apply(pd.to_numeric, errors="coerce")
     df[contact_cols] = df[contact_cols].apply(lambda c: pd.to_numeric(c.astype(str).str.rstrip("%"), errors="coerce"))
 
-    # Reduce headshot area by making left column even narrower
-    left, right = st.columns([1, 8])
+    # Reduce headshot area by making left column narrower
+    left, right = st.columns([1, 5])
+
     with left:
         if headshot_url and headshot_url.strip():
             try:
-                st.image(headshot_url, width=150)
+                st.image(headshot_url, use_column_width=True)
             except Exception as e:
                 st.error(f"Unable to load headshot image: {e}")
         else:
@@ -177,15 +190,19 @@ if uploaded_file:
 
     # build a one-row DataFrame without an “Overall” index label
     header_df = pd.DataFrame([header_values], columns=metrics_list)
+
     styled_header = (
-    header_df
+        header_df
         .style
-        .hide_index()                           # ← hide the “0” row index
+        .hide_index()  # hide the default row index
         .apply(style_header_row, axis=1)
-        .format({**{m: "{:.1f}" for m in metrics_list if not m.endswith("SLG")},
-             **{m: "{:.3f}" for m in metrics_list if m.endswith("SLG")}})
+        .format({
+            **{m: "{:.1f}" for m in metrics_list if not m.endswith("SLG")},
+            **{m: "{:.3f}" for m in metrics_list if m.endswith("SLG")}
+        })
         .set_properties(**{"text-align": "center"})
     )
+
     with right:
         st.dataframe(styled_header, use_container_width=True)
 
@@ -199,8 +216,10 @@ if uploaded_file:
         grp[contact_cols]
         .style
         .apply(style_contact_row, axis=1)
-        .format({**{c: "{:.1f}%" for c in contact_cols if not c.endswith("SLG")},
-                 **{c: "{:.3f}" for c in contact_cols if c.endswith("SLG")}})
+        .format({
+            **{c: "{:.1f}%" for c in contact_cols if not c.endswith("SLG")},
+            **{c: "{:.3f}" for c in contact_cols if c.endswith("SLG")}
+        })
         .set_properties(**{"text-align": "center"})
     )
     st.dataframe(styled_contacts, use_container_width=True)
