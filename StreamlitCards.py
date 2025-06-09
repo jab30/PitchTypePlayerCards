@@ -100,7 +100,7 @@ stat_ranges["Breaking (cv/sld/sw)"]["ChaseSLG"]      = {"min": 0, "mid": .198, "
 header_ranges = {
     "ExitVel":      {"min": 82.0, "mid": 86.8, "max": 96},
     "90thExitVel":  {"min": 101.5, "mid": 103.4, "max": 111},
-    "Air EV":       {"min": 83,   "mid": 89.5, "max": 95},
+    "Air EV":       {"min": 83,   "mid": 89.5, "max": 99},
     "LaunchAng":    {"min": 0.0,  "mid": 10.3, "max": 22.0},
     "HHLaunchAng":  {"min": 0.0,  "mid": 12.8, "max": 22.0},
     "xSLG":         {"min": 0.190,"mid": 0.388,"max": 1.000}
