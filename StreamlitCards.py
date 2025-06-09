@@ -30,7 +30,7 @@ pitch_order = [
 
 # Softer red→white→blue map
 cmap_sum = mcolors.LinearSegmentedColormap.from_list(
-    "", ["#7AB1EE", "#4A7BC8", "#0F1116", "#C44D5C", "#D45F6A"]
+    "", ["#7AB1EE", "#2A4B8C", "#0F1116", "#8C2A2A", "#D45F6A"]
 )
 
 # Per-pitch/stat ranges for contact_cols
