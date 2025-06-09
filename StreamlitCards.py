@@ -99,7 +99,7 @@ stat_ranges["Breaking (cv/sld/sw)"]["ChaseSLG"]      = {"min": 0, "mid": .198, "
 # Header metric thresholds
 header_ranges = {
     "ExitVel":      {"min": 82.0, "mid": 86.8, "max": 96},
-    "90thExitVel":  {"min": 101.5, "mid": 103.7, "max": 111},
+    "90thExitVel":  {"min": 101.5, "mid": 103.4, "max": 111},
     "Air EV":       {"min": 83,   "mid": 87.8, "max": 100},
     "LaunchAng":    {"min": 0.0,  "mid": 10.3, "max": 22.0},
     "HHLaunchAng":  {"min": 0.0,  "mid": 12.8, "max": 22.0},
