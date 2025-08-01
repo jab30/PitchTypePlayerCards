@@ -232,3 +232,12 @@ if uploaded_file:
     st.dataframe(styled_contacts, use_container_width=True)
 else:
     st.info("Upload a CSV and enter a headshot URL to see the dashboard.")
+    # --- Footer ---
+st.markdown(
+    """
+    <div style='text-align: center; margin-top: 30px; font-size: 14px; color: grey;'>
+        Data: TruMedia
+    </div>
+    """,
+    unsafe_allow_html=True
+)
