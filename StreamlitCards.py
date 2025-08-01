@@ -235,7 +235,7 @@ else:
     # --- Footer ---
 st.markdown(
     """
-    <div style='text-align: center; margin-top: 30px; font-size: 14px; color: grey;'>
+    <div style='text-align: center; margin-top: 0px; font-size: 14px; color: grey;'>
         Data: TruMedia
     </div>
     """,
