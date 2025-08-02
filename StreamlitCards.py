@@ -222,6 +222,9 @@ def create_contact_html(grp_data):
         font-weight: bold;
         text-align: left;
         padding-left: 15px;
+        font-size: 20px;
+        padding: 12px 8px 12px 15px;
+        border: 1px solid #ddd;
     }
     </style>
     <table class="contact-table">
