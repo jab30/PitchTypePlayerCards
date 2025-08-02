@@ -217,7 +217,7 @@ def create_contact_html(grp_data):
         text-shadow: 1px 1px 1px rgba(0,0,0,0.5);
     }
     .pitch-name {
-        background-color: #2c3e50;
+        background-color: transparent;
         color: white;
         font-weight: bold;
         text-align: left;
@@ -235,7 +235,7 @@ def create_contact_html(grp_data):
 
     for pitch_type in pitch_order:
         if pitch_type in grp_data.index:
-            html += f'<tr><td class="contact-cell pitch-name">{pitch_type}</td>'
+            html += f'<tr><td class="pitch-name">{pitch_type}</td>'
 
             for col in contact_cols:
                 value = grp_data.loc[pitch_type, col]
