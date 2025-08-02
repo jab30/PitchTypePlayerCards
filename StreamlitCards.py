@@ -286,7 +286,7 @@ if uploaded_file:
     with left:
         if headshot_url and headshot_url.strip():
             try:
-                st.image(headshot_url, use_container_width=True)
+                st.image(headshot_url, use_column_width=True)  # Changed from use_container_width
             except Exception as e:
                 st.error(f"Unable to load headshot image: {e}")
         else:
