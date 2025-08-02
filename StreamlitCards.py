@@ -215,6 +215,7 @@ def create_contact_html(grp_data):
         color: white;
         font-weight: 500;
         text-shadow: 1px 1px 1px rgba(0,0,0,0.5);
+        font-size: 20px;
     }
     .pitch-name {
         background-color: transparent;
