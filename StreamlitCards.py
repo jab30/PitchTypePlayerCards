@@ -96,6 +96,18 @@ stat_ranges["Breaking (cv/sld/sw)"]["Zone%-Chase%"] = {"min": 17.5, "mid": 33.8,
 stat_ranges["Breaking (cv/sld/sw)"]["InZoneSLG"] = {"min": .120, "mid": .506, "max": .820}
 stat_ranges["Breaking (cv/sld/sw)"]["ChaseSLG"] = {"min": 0, "mid": .198, "max": .500}
 
+# TOTAL row ranges (using overall league averages as a rough estimate)
+total_ranges = {
+    "Z-Contact%": {"min": 70, "mid": 83, "max": 95},
+    "O-Contact%": {"min": 30, "mid": 48, "max": 70},
+    "Contact%": {"min": 60, "mid": 71, "max": 85},
+    "InZoneSwing%": {"min": 60, "mid": 72, "max": 85},
+    "Chase%": {"min": 35, "mid": 28.5, "max": 20},
+    "Zone%-Chase%": {"min": 30, "mid": 43.4, "max": 55},
+    "InZoneSLG": {"min": 0.400, "mid": 0.600, "max": 0.800},
+    "ChaseSLG": {"min": 0.200, "mid": 0.302, "max": 0.450}
+}
+
 # Header metric thresholds
 header_ranges = {
     "ExitVel": {"min": 82.0, "mid": 86.8, "max": 96},
@@ -107,13 +119,15 @@ header_ranges = {
 }
 
 
-def get_color_for_value(value, stat_name, is_header=False, pitch_type=None):
+def get_color_for_value(value, stat_name, is_header=False, pitch_type=None, is_total=False):
     """Get background color for a value based on its performance range"""
     if pd.isna(value):
         return "#f0f0f0"
 
     if is_header:
         ranges = header_ranges[stat_name]
+    elif is_total:
+        ranges = total_ranges[stat_name]
     else:
         ranges = stat_ranges[pitch_type][stat_name]
 
@@ -190,7 +204,7 @@ def create_header_html(header_values):
     return html
 
 
-def create_contact_html(grp_data):
+def create_contact_html(grp_data, total_row=None):
     """Create HTML table for contact metrics"""
     html = """
     <style>
@@ -227,6 +241,20 @@ def create_contact_html(grp_data):
         padding: 12px 8px 12px 15px;
         border: 1px solid #ddd;
     }
+    .total-row {
+        border-top: 3px solid #ddd;
+    }
+    .total-name {
+        background-color: transparent;
+        color: white;
+        font-weight: bold;
+        text-align: left;
+        padding-left: 15px;
+        font-size: 20px;
+        padding: 12px 8px 12px 15px;
+        border: 1px solid #ddd;
+        border-top: 3px solid #ddd;
+    }
     </style>
     <table class="contact-table">
         <tr>
@@ -237,6 +265,7 @@ def create_contact_html(grp_data):
         html += f'<th class="contact-header">{col}</th>'
     html += '</tr>'
 
+    # Add pitch type rows
     for pitch_type in pitch_order:
         if pitch_type in grp_data.index:
             html += f'<tr><td class="pitch-name">{pitch_type}</td>'
@@ -252,6 +281,22 @@ def create_contact_html(grp_data):
 
                 html += f'<td class="contact-cell" style="background-color: {bg_color};">{formatted_value}</td>'
             html += '</tr>'
+
+    # Add TOTAL row if provided
+    if total_row is not None:
+        html += f'<tr class="total-row"><td class="total-name">TOTAL</td>'
+        
+        for col in contact_cols:
+            value = total_row[col]
+            bg_color = get_color_for_value(value, col, is_total=True)
+
+            if col.endswith("SLG"):
+                formatted_value = f"{value:.3f}" if not pd.isna(value) else "N/A"
+            else:
+                formatted_value = f"{value:.1f}%" if not pd.isna(value) else "N/A"
+
+            html += f'<td class="contact-cell" style="background-color: {bg_color};">{formatted_value}</td>'
+        html += '</tr>'
 
     html += '</table>'
     return html
@@ -278,6 +323,15 @@ if uploaded_file:
         "HHLaunchAng": total["HHLaunchAng"],
         "xSLG": total["SLG"]
     }).apply(pd.to_numeric, errors="coerce")
+
+    # Process TOTAL row for contact metrics
+    total_contact = pd.Series({col: total[col] for col in contact_cols})
+    # Convert percentage strings to numeric values
+    for col in contact_cols:
+        if isinstance(total_contact[col], str) and total_contact[col].endswith('%'):
+            total_contact[col] = float(total_contact[col].rstrip('%'))
+        else:
+            total_contact[col] = pd.to_numeric(total_contact[col], errors='coerce')
 
     df = df[df["SplitBy"] != "TOTAL"].copy()
     df = df[df[pitch_col].isin(pitch_order)]
@@ -308,8 +362,8 @@ if uploaded_file:
     grp = df.groupby(pitch_col).agg(agg).reindex(pitch_order)
     grp["P%"] = (grp["P"] / grp["P"].sum() * 100).round(1)
 
-    # Create and display contact metrics using HTML
-    contact_html = create_contact_html(grp)
+    # Create and display contact metrics using HTML with TOTAL row
+    contact_html = create_contact_html(grp, total_contact)
     st.markdown(contact_html, unsafe_allow_html=True)
 
 else:
