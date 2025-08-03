@@ -135,7 +135,7 @@ def get_color_for_value(value, stat_name, is_header=False, pitch_type=None, is_t
 
     # Special handling for Chase% (lower is better)
     if stat_name == "Chase%":
-        frac = (value - lo) / (hi - lo) if hi != lo else 0.5
+        frac = 1.0 - ((value - lo) / (hi - lo)) if hi != lo else 0.5
     else:
         # Clamp between 0 and 1
         if value >= hi:
