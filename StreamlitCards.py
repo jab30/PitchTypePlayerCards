@@ -373,7 +373,7 @@ else:
 st.markdown(
     """
     <div style='text-align: center; margin-top: 20px; font-size: 14px; color: grey;'>
-        Data: TruMedia
+        Inspo: @EliBenPorat | Data: TruMedia
     </div>
     """,
     unsafe_allow_html=True
