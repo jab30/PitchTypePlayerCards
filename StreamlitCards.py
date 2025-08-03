@@ -96,27 +96,22 @@ stat_ranges["Breaking (cv/sld/sw)"]["Zone%-Chase%"] = {"min": 17.5, "mid": 33.8,
 stat_ranges["Breaking (cv/sld/sw)"]["InZoneSLG"] = {"min": .120, "mid": .506, "max": .820}
 stat_ranges["Breaking (cv/sld/sw)"]["ChaseSLG"] = {"min": 0, "mid": .198, "max": .500}
 
-# TOTAL row ranges (using overall league averages as a rough estimate)
+# TOTAL row ranges (using actual percentile positions)
 total_ranges = {
-    "Z-Contact%": {"min": 70, "mid": 83, "max": 95},
-    "O-Contact%": {"min": 30, "mid": 48, "max": 70},
-    "Contact%": {"min": 60, "mid": 71, "max": 85},
-    "InZoneSwing%": {"min": 60, "mid": 72, "max": 85},
-    "Chase%": {"min": 35, "mid": 28.5, "max": 20},
-    "Zone%-Chase%": {"min": 30, "mid": 43.4, "max": 55},
-    "InZoneSLG": {"min": 0.400, "mid": 0.600, "max": 0.800},
-    "ChaseSLG": {"min": 0.200, "mid": 0.302, "max": 0.450}
+    "Z-Contact%": {"min": 75.0, "mid": 85.0, "max": 88.0},
+    "O-Contact%": {"min": 40.0, "mid": 55.0, "max": 60.0},
+    "Contact%": {"min": 60.0, "mid": 75.0, "max": 78.0},
+    "InZoneSwing%": {"min": 65.0, "mid": 72.0, "max": 78.0},
+    "Chase%": {"min": 35.0, "mid": 28.5, "max": 22.0},
+    "Zone%-Chase%": {"min": 35.0, "mid": 43.4, "max": 50.0},
+    "InZoneSLG": {"min": 0.500, "mid": 0.600, "max": 0.700},
+    "ChaseSLG": {"min": 0.250, "mid": 0.302, "max": 0.400}
 }
 
 # Header metric thresholds
 header_ranges = {
-    "ExitVel": {"min": 82.0, "mid": 86.8, "max": 96},
+    "ExitVel": {"min": 87.0, "mid": 90.5, "max": 94.0},
     "90thExitVel": {"min": 100.0, "mid": 102.5, "max": 105.0},
-    "Air EV": {"min": 83, "mid": 89.5, "max": 99},
-    "LaunchAng": {"min": 0.0, "mid": 10.3, "max": 22.0},
-    "HHLaunchAng": {"min": 0.0, "mid": 12.8, "max": 22.0},
-    "xSLG": {"min": 0.190, "mid": 0.388, "max": 1.000}
-}
 
 
 def get_color_for_value(value, stat_name, is_header=False, pitch_type=None, is_total=False):
