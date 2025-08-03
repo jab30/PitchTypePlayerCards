@@ -372,7 +372,7 @@ else:
 # --- Footer ---
 st.markdown(
     """
-    <div style='text-align: center; margin-top: 20px; font-size: 14px; color: grey;'>
+    <div style='text-align: center; margin-top: 10px; font-size: 14px; color: grey;'>
         Inspo: @EliBenPorat | Data: TruMedia
     </div>
     """,
