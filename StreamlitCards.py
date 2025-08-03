@@ -98,11 +98,11 @@ stat_ranges["Breaking (cv/sld/sw)"]["ChaseSLG"] = {"min": 0, "mid": .198, "max":
 
 # TOTAL row ranges (using actual percentile positions)
 total_ranges = {
-    "Z-Contact%": {"min": 75.0, "mid": 85.0, "max": 88.0},
+    "Z-Contact%": {"min": 78.0, "mid": 86.0, "max": 94.1},
     "O-Contact%": {"min": 45.0, "mid": 62.5, "max": 80.0},
     "Contact%": {"min": 68.0, "mid": 80.5, "max": 93.0},
-    "InZoneSwing%": {"min": 65.0, "mid": 72.0, "max": 78.0},
-    "Chase%": {"min": 35.0, "mid": 28.5, "max": 22.0},
+    "InZoneSwing%": {"min": 60.0, "mid": 67.3, "max": 74.7},
+    "Chase%": {"min": 25.0, "mid": 34.2, "max": 43.4},
     "Zone%-Chase%": {"min": 35.0, "mid": 43.4, "max": 50.0},
     "InZoneSLG": {"min": 0.500, "mid": 0.600, "max": 0.700},
     "ChaseSLG": {"min": 0.250, "mid": 0.302, "max": 0.400}
