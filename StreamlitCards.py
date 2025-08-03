@@ -110,8 +110,13 @@ total_ranges = {
 
 # Header metric thresholds
 header_ranges = {
-    "ExitVel": {"min": 87.0, "mid": 90.5, "max": 94.0},
+    "ExitVel": {"min": 87.0, "mid": 89.0, "max": 91.2},
     "90thExitVel": {"min": 100.0, "mid": 102.5, "max": 105.0},
+    "Air EV": {"min": 87.0, "mid": 89.6, "max": 92.1},
+    "LaunchAng": {"min": 8.0, "mid": 14.0, "max": 17.7},
+    "HHLaunchAng": {"min": 10.0, "mid": 16.0, "max": 18.8},
+    "xSLG": {"min": 0.200, "mid": 0.400, "max": 0.500}
+}
 
 
 def get_color_for_value(value, stat_name, is_header=False, pitch_type=None, is_total=False):
