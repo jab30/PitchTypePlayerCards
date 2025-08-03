@@ -321,7 +321,7 @@ if uploaded_file:
         "Air EV": total["Air EV"],
         "LaunchAng": total["LaunchAng"],
         "HHLaunchAng": total["HHLaunchAng"],
-        "xSLG": total["SLG"]
+        "xSLG": total["xSLG"]
     }).apply(pd.to_numeric, errors="coerce")
 
     # Process TOTAL row for contact metrics
